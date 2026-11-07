@@ -4,6 +4,29 @@ from os.path import isfile
 
 from functions.utils import is_valid_dir, return_absolute_path
 
+schema_run_python_file = {
+    "type": "function",
+    "function": {
+        "name": "run_python_file",
+        "description": "Executes a Python file relative to the working directory with optional command-line arguments, returning its exit code, stdout, and stderr",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path to the Python file to execute, relative to the working directory",
+                },
+                "args": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Optional list of command-line arguments to pass to the Python file (default is no arguments)",
+                },
+            },
+            "required": ["file_path"],
+        },
+    },
+}
+
 
 def run_python_file(
     working_directory: str, file_path: str, args: list[str] | None = None
@@ -45,4 +68,4 @@ def run_python_file(
             output_string.append(f"STDERR:\n{run_output.stderr}")
         return "\n".join(output_string)
     except Exception as e:
-        raise Exception(f"Error: executing Python file: {e}")
+        return f"Error: executing Python file"

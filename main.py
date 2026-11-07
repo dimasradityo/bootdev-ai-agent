@@ -4,6 +4,9 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from call_function import available_functions, call_function
+from prompts import system_prompt
+
 
 def main():
     # configuring env vars and assigning api key
@@ -25,27 +28,40 @@ def main():
     args = parser.parse_args()
 
     # create new chat
-    messages: list[dict[str, str]] = [
+    messages = [
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": args.user_prompt},
     ]
 
     response = client.chat.completions.create(
         model="openrouter/free",
         messages=messages,
+        tools=available_functions,
     )
 
     # display output
-    usage: object = response.usage
+    usage = response.usage
     if usage is None:
         raise RuntimeError(
             "No usage data to display. Check if API request was successful."
         )
 
+    # output response and tool calls if any
+    output_message = response.choices[0].message
+
+    if output_message.tool_calls:
+        for tool_call in output_message.tool_calls:
+            result_message = call_function(tool_call, args.verbose)
+            print(f"-> {result_message['content']}")
+            if result_message["content"] is None:
+                raise Exception("Function call result is empty.")
+
     if args.verbose:
         print(f"User prompt: {args.user_prompt}")
         print(f"Prompt tokens: {usage.prompt_tokens}")
         print(f"Response tokens: {usage.completion_tokens}")
-    print(f"Response: {response.choices[0].message.content}")
+
+    print(f"Response: {output_message.content}")
 
 
 if __name__ == "__main__":

@@ -3,6 +3,24 @@ import os
 import config
 from functions.utils import is_valid_dir, return_absolute_path
 
+schema_get_file_content = {
+    "type": "function",
+    "function": {
+        "name": "get_file_content",
+        "description": "Reads and returns the contents of a specified file relative to the working directory, truncating the output if it exceeds the maximum character limit",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path to the file to read, relative to the  working directory.",
+                },
+            },
+            "required": ["file_path"],
+        },
+    },
+}
+
 
 def get_file_content(working_directory: str, file_path: str) -> str:
     try:

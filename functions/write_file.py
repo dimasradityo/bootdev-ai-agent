@@ -2,6 +2,28 @@ import os
 
 from functions.utils import is_valid_dir, return_absolute_path
 
+schema_write_file = {
+    "type": "function",
+    "function": {
+        "name": "write_file",
+        "description": "Writes content to a file relative to the working directory, creating the file and any parent directories if they don't exist, and overwriting it if it does",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Path to the file to write, relative to the working directory.",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Content to be written to the file and replaces any existing content",
+                },
+            },
+            "required": ["file_path", "content"],
+        },
+    },
+}
+
 
 def write_file(working_directory: str, file_path: str, content: str) -> str:
     try:
@@ -21,9 +43,7 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
 
         # Raise error if file path is not a file
         if os.path.isdir(file_path_abs):
-            raise Exception(
-                f'Error: Cannot write to "{file_path}" as it is a directory'
-            )
+            raise Exception(f'Cannot write to "{file_path}" as it is a directory')
 
         # Writing file
         with open(file_path_abs, mode="w") as file:
